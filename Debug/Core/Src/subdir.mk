@@ -5,25 +5,37 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Core/Src/Eeprom.c \
+../Core/Src/General.c \
+../Core/Src/Lib.c \
 ../Core/Src/main.c \
 ../Core/Src/stm32f1xx_it.c \
 ../Core/Src/syscalls.c \
 ../Core/Src/sysmem.c \
-../Core/Src/system_stm32f1xx.c 
+../Core/Src/system_stm32f1xx.c \
+../Core/Src/usart.c 
 
 OBJS += \
+./Core/Src/Eeprom.o \
+./Core/Src/General.o \
+./Core/Src/Lib.o \
 ./Core/Src/main.o \
 ./Core/Src/stm32f1xx_it.o \
 ./Core/Src/syscalls.o \
 ./Core/Src/sysmem.o \
-./Core/Src/system_stm32f1xx.o 
+./Core/Src/system_stm32f1xx.o \
+./Core/Src/usart.o 
 
 C_DEPS += \
+./Core/Src/Eeprom.d \
+./Core/Src/General.d \
+./Core/Src/Lib.d \
 ./Core/Src/main.d \
 ./Core/Src/stm32f1xx_it.d \
 ./Core/Src/syscalls.d \
 ./Core/Src/sysmem.d \
-./Core/Src/system_stm32f1xx.d 
+./Core/Src/system_stm32f1xx.d \
+./Core/Src/usart.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
