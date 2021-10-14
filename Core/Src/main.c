@@ -95,7 +95,7 @@ static void MX_TIM7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char Version[] = "BMS 8c Ver 1.00 ";
+char Version[] = "SBMS 8c M V1.00";
 
 
 
@@ -180,32 +180,32 @@ void OFF_Itself()
 	EEpromSaveStatus = 1;
 	logInfo("OFF All System");
 	delay_ms(100);
-	GPIOC->BSRR =  GPIO_BSRR_BR13;//OFF CPU
+	GPIOA->BSRR =  GPIO_BSRR_BR11;//OFF CPU
 
 }
 
 void AllBalansirON()
 {
-	GPIOB->BSRR = GPIO_BSRR_BS12;//Battery 1 Balansir ON
-	GPIOB->BSRR = GPIO_BSRR_BS13;//Battery 2 Balansir ON
-	GPIOB->BSRR = GPIO_BSRR_BS14;//Battery 3 Balansir ON
-	GPIOB->BSRR = GPIO_BSRR_BS15;//Battery 4 Balansir ON
-	GPIOA->BSRR = GPIO_BSRR_BS8;//Battery 5 Balansir ON
-	GPIOA->BSRR = GPIO_BSRR_BS11;//Battery 6 Balansir ON
-	GPIOA->BSRR = GPIO_BSRR_BS12;//Battery 7 Balansir ON
-	GPIOA->BSRR = GPIO_BSRR_BS15;//Battery 8 Balansir ON
+	GPIOC->BSRR = GPIO_BSRR_BS7;//Battery 1 Balansir ON
+	GPIOC->BSRR = GPIO_BSRR_BS6;//Battery 2 Balansir ON
+	GPIOB->BSRR = GPIO_BSRR_BS15;//Battery 3 Balansir ON
+	GPIOB->BSRR = GPIO_BSRR_BS14;//Battery 4 Balansir ON
+	GPIOB->BSRR = GPIO_BSRR_BS13;//Battery 5 Balansir ON
+	GPIOB->BSRR = GPIO_BSRR_BS12;//Battery 6 Balansir ON
+	GPIOB->BSRR = GPIO_BSRR_BS8;//Battery 7 Balansir ON
+	GPIOB->BSRR = GPIO_BSRR_BS5;//Battery 8 Balansir ON
 
 }
 void AllBalansirOFF()
 {
-	GPIOB->BSRR = GPIO_BSRR_BR12;//Battery 1 Balansir OFF
-	GPIOB->BSRR = GPIO_BSRR_BR13;//Battery 2 Balansir OFF
-	GPIOB->BSRR = GPIO_BSRR_BR14;//Battery 3 Balansir OFF
-	GPIOB->BSRR = GPIO_BSRR_BR15;//Battery 4 Balansir OFF
-	GPIOA->BSRR = GPIO_BSRR_BR8;//Battery 5 Balansir OFF
-	GPIOA->BSRR = GPIO_BSRR_BR11;//Battery 6 Balansir OFF
-	GPIOA->BSRR = GPIO_BSRR_BR12;//Battery 7 Balansir OFF
-	GPIOA->BSRR = GPIO_BSRR_BR15;//Battery 8 Balansir OFF
+	GPIOC->BSRR = GPIO_BSRR_BR7;//Battery 1 Balansir OFF
+	GPIOC->BSRR = GPIO_BSRR_BR6;//Battery 2 Balansir OFF
+	GPIOB->BSRR = GPIO_BSRR_BR15;//Battery 3 Balansir OFF
+	GPIOB->BSRR = GPIO_BSRR_BR14;//Battery 4 Balansir OFF
+	GPIOB->BSRR = GPIO_BSRR_BR13;//Battery 5 Balansir OFF
+	GPIOB->BSRR = GPIO_BSRR_BR12;//Battery 6 Balansir OFF
+	GPIOB->BSRR = GPIO_BSRR_BR8;//Battery 7 Balansir OFF
+	GPIOB->BSRR = GPIO_BSRR_BR5;//Battery 8 Balansir OFF
 }
 
 
@@ -214,29 +214,29 @@ void AllBalansirOFF()
 #define DEBAUNCE_FAIL 2 //1 - 10mV
 void Balansir_handler()
 {
-	if(CellsDatabase[0].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS12;//Battery 1 Balansir ON
-	if(CellsDatabase[0].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR12;//Battery 1 Balansir OFF
+	if(CellsDatabase[0].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOC->BSRR = GPIO_BSRR_BS7;//Battery 1 Balansir ON
+	if(CellsDatabase[0].Voltage<(MAX_VOLTAGE-1)) GPIOC->BSRR = GPIO_BSRR_BR7;//Battery 1 Balansir OFF
 
-	if(CellsDatabase[1].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS13;//Battery 2 Balansir ON
-	if(CellsDatabase[1].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR13;//Battery 2 Balansir OFF
+	if(CellsDatabase[1].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOC->BSRR = GPIO_BSRR_BS6;//Battery 2 Balansir ON
+	if(CellsDatabase[1].Voltage<(MAX_VOLTAGE-1)) GPIOC->BSRR = GPIO_BSRR_BR6;//Battery 2 Balansir OFF
 
-	if(CellsDatabase[2].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS14;//Battery 3 Balansir ON
-	if(CellsDatabase[2].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR14;//Battery 3 Balansir OFF
+	if(CellsDatabase[2].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS15;//Battery 3 Balansir ON
+	if(CellsDatabase[2].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR15;//Battery 3 Balansir OFF
 
-	if(CellsDatabase[3].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS15;//Battery 4 Balansir ON
-	if(CellsDatabase[3].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR15;//Battery 4 Balansir OFF
+	if(CellsDatabase[3].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS14;//Battery 4 Balansir ON
+	if(CellsDatabase[3].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR14;//Battery 4 Balansir OFF
 
-	if(CellsDatabase[4].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOA->BSRR = GPIO_BSRR_BS8;//Battery 5 Balansir ON
-	if(CellsDatabase[4].Voltage<(MAX_VOLTAGE-1)) GPIOA->BSRR = GPIO_BSRR_BR8;//Battery 5 Balansir OFF
+	if(CellsDatabase[4].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS13;//Battery 5 Balansir ON
+	if(CellsDatabase[4].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR13;//Battery 5 Balansir OFF
 
-	if(CellsDatabase[5].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOA->BSRR = GPIO_BSRR_BS11;//Battery 6 Balansir ON
-	if(CellsDatabase[5].Voltage<(MAX_VOLTAGE-1)) GPIOA->BSRR = GPIO_BSRR_BR11;//Battery 6 Balansir OFF
+	if(CellsDatabase[5].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS12;//Battery 6 Balansir ON
+	if(CellsDatabase[5].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR12;//Battery 6 Balansir OFF
 
-	if(CellsDatabase[6].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOA->BSRR = GPIO_BSRR_BS12;//Battery 7 Balansir ON
-	if(CellsDatabase[6].Voltage<(MAX_VOLTAGE-1)) GPIOA->BSRR = GPIO_BSRR_BR12;//Battery 7 Balansir OFF
+	if(CellsDatabase[6].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS8;//Battery 7 Balansir ON
+	if(CellsDatabase[6].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR8;//Battery 7 Balansir OFF
 
-	if(CellsDatabase[7].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOA->BSRR = GPIO_BSRR_BS15;//Battery 8 Balansir ON
-	if(CellsDatabase[7].Voltage<(MAX_VOLTAGE-1)) GPIOA->BSRR = GPIO_BSRR_BR15;//Battery 8 Balansir OFF
+	if(CellsDatabase[7].Voltage>(MAX_VOLTAGE+DEBAUNCE)) GPIOB->BSRR = GPIO_BSRR_BS5;//Battery 8 Balansir ON
+	if(CellsDatabase[7].Voltage<(MAX_VOLTAGE-1)) GPIOB->BSRR = GPIO_BSRR_BR5;//Battery 8 Balansir OFF
 
 
 
@@ -336,16 +336,16 @@ int32_t step;
 void VoltageLevelByLEDFlash()
 {
 
-   if (Battery.Voltage <= ID_MAX_COUNT*MIN_VOLTAGE) GPIOB->BSRR =  GPIO_BSRR_BR4;//LED OFF always
+   if (Battery.Voltage <= ID_MAX_COUNT*MIN_VOLTAGE) GPIOB->BSRR =  GPIO_BSRR_BR3;//LED OFF always
    else
    {
     	step =(10*ID_MAX_COUNT*(Voltage95Percent - Voltage10Percent))/100;//~30
 		if (Battery.Voltage*10>FlashVoltage)
 		{
-			GPIOB->BSRR =  GPIO_BSRR_BS4;
+			GPIOB->BSRR =  GPIO_BSRR_BS3;
 		}else
 		{
-			GPIOB->BSRR =  GPIO_BSRR_BR4;
+			GPIOB->BSRR =  GPIO_BSRR_BR3;
 		}
 		FlashVoltage = FlashVoltage+step;
 		if (FlashVoltage>Voltage95Percent*ID_MAX_COUNT*10) FlashVoltage=Voltage10Percent*ID_MAX_COUNT*10;
@@ -359,7 +359,7 @@ void BUT_Debrief(void)
 {
 	Key_Pressed_t key;
 
-	if (!LL_GPIO_IsInputPinSet(GPIOA, LL_GPIO_PIN_11))
+	if (!LL_GPIO_IsInputPinSet(GPIOC, LL_GPIO_PIN_10))
 		key = KEY_OK;
 	//else if (!LL_GPIO_IsInputPinSet(GPIOB,LL_GPIO_PIN_5))
 	//	key = KEY_NEXT;
@@ -481,11 +481,11 @@ void SysTick_Callback()//1 mc
 			//if (time_sec%2==0) GPIOB->BSRR =  GPIO_BSRR_BS6;//Fault
 			//else GPIOB->BSRR =  GPIO_BSRR_BR6;
 
-			GPIOB->BSRR =  GPIO_BSRR_BS6;//Fault
+			GPIOD->BSRR =  GPIO_BSRR_BS2;//Fault
 		}
 		else
 		{
-			GPIOB->BSRR =  GPIO_BSRR_BR6;
+			GPIOD->BSRR =  GPIO_BSRR_BR2;
 		}
 
 		//if (time_sec%2==0) GPIOB->BSRR =  GPIO_BSRR_BS7;//Charge/ Discharge
@@ -530,8 +530,18 @@ void adc_func()
 //	  PA7   ------> ADC1_IN7 [7] U B2
 //	  PB0   ------> ADC1_IN8 [8] U B3
 //	  PB1   ------> ADC1_IN9 [9] U B4
-//	temp [10]
-//	Vref [11]
+
+	//4  [] B1
+	//3  [] B2
+	//1  [] B3
+	//0  [] B4
+	//13 [] B5
+	//12 [] B6
+	//11 [] B7
+	//10 [] B8
+	//6  [] I
+	//5  [] I
+//	Vref [15]
 
 
 	volatile int32_t Ut = 0;
@@ -544,7 +554,7 @@ void adc_func()
 
 	U_Controller = 491520 / RegularConvData[11];// Uref V/10;  1200 * 4096/ChVref
 
-	It = (RegularConvData[1] * CalibrationData.CalibrationValueForCurrent1) / RegularConvData[11] ;//  Current
+	It = (RegularConvData[1] * CalibrationData.CalibrationValueForCurrent1) / RegularConvData[15] ;//  Current
 	It_m = It;//middle_of_3Imax1(It);
 	SumI1 =SumI1 + RunningAverageI1(It_m);
 	SumI1Counter ++;
@@ -555,7 +565,7 @@ void adc_func()
 		SumI1 = 0;
 	}
 
-	It= (RegularConvData[0] * CalibrationData.CalibrationValueForCurrent2) / RegularConvData[11] ;//  Current
+	It= (RegularConvData[0] * CalibrationData.CalibrationValueForCurrent2) / RegularConvData[15] ;//  Current
 	It_m =It;// middle_of_3Imax2(It);
 	SumI2 =SumI2 + RunningAverageI2(It_m);
 	SumI2Counter ++;
@@ -566,7 +576,7 @@ void adc_func()
 		SumI2 = 0;
 	}
 
-	Ut= (RegularConvData[2] * CalibrationData.CalibrationValueForVoltage1) / RegularConvData[11];
+	Ut= (RegularConvData[2] * CalibrationData.CalibrationValueForVoltage1) / RegularConvData[15];
 	Ut_m = Ut;//middle_of_3Umax1(Ut);
 	SumU1 =SumU1 + RunningAverageU1(Ut_m);
 	SumU1Counter ++;
@@ -577,7 +587,7 @@ void adc_func()
 		SumU1 = 0;
 	}
 
-	Ut = (RegularConvData[3] * CalibrationData.CalibrationValueForVoltage2) / RegularConvData[11];
+	Ut = (RegularConvData[3] * CalibrationData.CalibrationValueForVoltage2) / RegularConvData[15];
 	Ut_m = Ut;//middle_of_3Umax2(Ut);
 	SumU2 = SumU2 + RunningAverageU2(Ut_m);
 	SumU2Counter ++;
@@ -589,7 +599,7 @@ void adc_func()
 	}
 
 
-	Ut = (RegularConvData[4] * CalibrationData.CalibrationValueForVoltage3) / RegularConvData[11];
+	Ut = (RegularConvData[4] * CalibrationData.CalibrationValueForVoltage3) / RegularConvData[15];
 	Ut_m = Ut;//middle_of_3Umax3(Ut);
 	SumU3 =SumU3 + RunningAverageU3(Ut_m);
 	SumU3Counter ++;
@@ -600,7 +610,7 @@ void adc_func()
 		SumU3 = 0;
 	}
 
-	Ut = (RegularConvData[5] * CalibrationData.CalibrationValueForVoltage4) / RegularConvData[11];
+	Ut = (RegularConvData[5] * CalibrationData.CalibrationValueForVoltage4) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU4 =SumU4 + RunningAverageU4(Ut_m);
 	SumU4Counter ++;
@@ -611,7 +621,7 @@ void adc_func()
 		SumU4 = 0;
 	}
 
-	Ut = (RegularConvData[6] * CalibrationData.CalibrationValueForVoltage5) / RegularConvData[11];
+	Ut = (RegularConvData[6] * CalibrationData.CalibrationValueForVoltage5) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU5 =SumU5 + RunningAverageU5(Ut_m);
 	SumU5Counter ++;
@@ -622,7 +632,7 @@ void adc_func()
 		SumU5 = 0;
 	}
 
-	Ut = (RegularConvData[7] * CalibrationData.CalibrationValueForVoltage6) / RegularConvData[11];
+	Ut = (RegularConvData[7] * CalibrationData.CalibrationValueForVoltage6) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU6 =SumU6 + RunningAverageU6(Ut_m);
 	SumU6Counter ++;
@@ -633,7 +643,7 @@ void adc_func()
 		SumU6 = 0;
 	}
 
-	Ut = (RegularConvData[8] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[11];
+	Ut = (RegularConvData[8] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU7 =SumU7 + RunningAverageU7(Ut_m);
 	SumU7Counter ++;
@@ -644,7 +654,7 @@ void adc_func()
 		SumU7 = 0;
 	}
 
-	Ut = (RegularConvData[9] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[11];
+	Ut = (RegularConvData[9] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU8 =SumU8 + RunningAverageU8(Ut_m);
 	SumU8Counter ++;
@@ -887,12 +897,12 @@ void TIM7_Callback()
 
 void Output_ON()
 {
-    GPIOB->BSRR =  GPIO_BSRR_BS9;//ON OUT
+    GPIOA->BSRR =  GPIO_BSRR_BS8;//ON OUT
     logDebug("out on");
 }
 void Output_OFF()
 {
-    GPIOB->BSRR =  GPIO_BSRR_BR9;//ON OUT
+    GPIOA->BSRR =  GPIO_BSRR_BR8;//ON OUT
     logDebug("out off");
 }
 
@@ -951,8 +961,9 @@ int main(void)
 	uint8_t EEpromReadStatus;
 
 	delay_ms(100);
-   GPIOC->BSRR =  GPIO_BSRR_BS13;//ON CPU
-   GPIOB->BSRR =  GPIO_BSRR_BS8;//12 V for Mosfet
+   GPIOA->BSRR =  GPIO_BSRR_BS11;//ON CPU
+   GPIOA->BSRR =  GPIO_BSRR_BS12;//12 V for
+   GPIOB->BSRR =  GPIO_BSRR_BS4;//12 V for
    logDebug("System ON");
 	FlashVoltage = Voltage10Percent*ID_MAX_COUNT*10;
 
@@ -996,7 +1007,7 @@ int main(void)
   logDebug("OUTPUT ON");
   //printToBufferUART1("Hello");
 
-	  GPIOC->BSRR =  GPIO_BSRR_BS15;
+//	  GPIOC->BSRR =  GPIO_BSRR_BS15;
   Battery.LowBattery = 1;
 
   /* USER CODE END 2 */
@@ -1010,7 +1021,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  BUT_GetKey();
 
-
+/*
 	  if (LL_GPIO_IsInputPinSet(GPIOC, LL_GPIO_PIN_14))
 	  {
 		   logDebug("Short");
@@ -1019,6 +1030,7 @@ int main(void)
 		  delay_ms(10);
 		  GPIOC->BSRR =  GPIO_BSRR_BS15;
 	  }
+	  */
 	  /*
 		f1 = SysTick->VAL;
 		  logDebugD("f1 ",f1,0);

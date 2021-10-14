@@ -18,7 +18,7 @@
 #include "Eeprom.h"
 #define PACKAGE_BEGIN 0xFE
 
-#define NUMBER_OF_CHANNELS 12
+#define NUMBER_OF_CHANNELS 16
 __IO uint16_t RegularConvData[NUMBER_OF_CHANNELS] ;
 
 
