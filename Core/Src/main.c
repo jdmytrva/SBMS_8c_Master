@@ -531,16 +531,16 @@ void adc_func()
 //	  PB0   ------> ADC1_IN8 [8] U B3
 //	  PB1   ------> ADC1_IN9 [9] U B4
 
-	//4  [] B1
-	//3  [] B2
-	//1  [] B3
-	//0  [] B4
-	//13 [] B5
-	//12 [] B6
-	//11 [] B7
-	//10 [] B8
-	//6  [] I
-	//5  [] I
+	//4  [4] B1
+	//3  [3] B2
+	//1  [1] B3
+	//0  [0] B4
+	//13 [12] B5
+	//12 [11] B6
+	//11 [10] B7
+	//10 [9] B8
+	//6  [6] I
+	//5  [5] I
 //	Vref [15]
 
 
@@ -554,7 +554,7 @@ void adc_func()
 
 	U_Controller = 491520 / RegularConvData[11];// Uref V/10;  1200 * 4096/ChVref
 
-	It = (RegularConvData[1] * CalibrationData.CalibrationValueForCurrent1) / RegularConvData[15] ;//  Current
+	It = (RegularConvData[6] * CalibrationData.CalibrationValueForCurrent1) / RegularConvData[15] ;//  Current
 	It_m = It;//middle_of_3Imax1(It);
 	SumI1 =SumI1 + RunningAverageI1(It_m);
 	SumI1Counter ++;
@@ -565,7 +565,7 @@ void adc_func()
 		SumI1 = 0;
 	}
 
-	It= (RegularConvData[0] * CalibrationData.CalibrationValueForCurrent2) / RegularConvData[15] ;//  Current
+	It= (RegularConvData[5] * CalibrationData.CalibrationValueForCurrent2) / RegularConvData[15] ;//  Current
 	It_m =It;// middle_of_3Imax2(It);
 	SumI2 =SumI2 + RunningAverageI2(It_m);
 	SumI2Counter ++;
@@ -576,7 +576,7 @@ void adc_func()
 		SumI2 = 0;
 	}
 
-	Ut= (RegularConvData[2] * CalibrationData.CalibrationValueForVoltage1) / RegularConvData[15];
+	Ut= (RegularConvData[4] * CalibrationData.CalibrationValueForVoltage1) / RegularConvData[15];
 	Ut_m = Ut;//middle_of_3Umax1(Ut);
 	SumU1 =SumU1 + RunningAverageU1(Ut_m);
 	SumU1Counter ++;
@@ -599,7 +599,7 @@ void adc_func()
 	}
 
 
-	Ut = (RegularConvData[4] * CalibrationData.CalibrationValueForVoltage3) / RegularConvData[15];
+	Ut = (RegularConvData[1] * CalibrationData.CalibrationValueForVoltage3) / RegularConvData[15];//
 	Ut_m = Ut;//middle_of_3Umax3(Ut);
 	SumU3 =SumU3 + RunningAverageU3(Ut_m);
 	SumU3Counter ++;
@@ -610,7 +610,7 @@ void adc_func()
 		SumU3 = 0;
 	}
 
-	Ut = (RegularConvData[5] * CalibrationData.CalibrationValueForVoltage4) / RegularConvData[15];
+	Ut = (RegularConvData[0] * CalibrationData.CalibrationValueForVoltage4) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU4 =SumU4 + RunningAverageU4(Ut_m);
 	SumU4Counter ++;
@@ -621,7 +621,7 @@ void adc_func()
 		SumU4 = 0;
 	}
 
-	Ut = (RegularConvData[6] * CalibrationData.CalibrationValueForVoltage5) / RegularConvData[15];
+	Ut = (RegularConvData[12] * CalibrationData.CalibrationValueForVoltage5) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU5 =SumU5 + RunningAverageU5(Ut_m);
 	SumU5Counter ++;
@@ -632,7 +632,7 @@ void adc_func()
 		SumU5 = 0;
 	}
 
-	Ut = (RegularConvData[7] * CalibrationData.CalibrationValueForVoltage6) / RegularConvData[15];
+	Ut = (RegularConvData[11] * CalibrationData.CalibrationValueForVoltage6) / RegularConvData[15];//
 	Ut_m = Ut;
 	SumU6 =SumU6 + RunningAverageU6(Ut_m);
 	SumU6Counter ++;
@@ -643,7 +643,7 @@ void adc_func()
 		SumU6 = 0;
 	}
 
-	Ut = (RegularConvData[8] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[15];
+	Ut = (RegularConvData[10] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU7 =SumU7 + RunningAverageU7(Ut_m);
 	SumU7Counter ++;
@@ -775,7 +775,7 @@ void MainScreenAnswer()
 		Master.DataCRC = calcCRC(Master.Package, Master.Data_length, 0);
 		Master.Package[18] = Master.DataCRC;
 		Master.Package[19] = 0x0A;
-		putDataInBufferUart1(Master.Package,Master.Data_length+2);
+		putDataInBufferUart2(Master.Package,Master.Data_length+2);
 	}
 
 	if (NUMBER_OF_CELLS == 8)
@@ -803,7 +803,7 @@ void MainScreenAnswer()
 		Master.DataCRC = calcCRC(Master.Package, Master.Data_length, 0);
 		Master.Package[26] = Master.DataCRC;
 		Master.Package[27] = 0x0A;
-		putDataInBufferUart1(Master.Package,Master.Data_length+2);
+		putDataInBufferUart2(Master.Package,Master.Data_length+2);
 
 	}
 
@@ -837,7 +837,7 @@ void SystemInfoAnswer()
 	Master.DataCRC = calcCRC(Master.Package, Master.Data_length, 0);
 	Master.Package[14] = Master.DataCRC;
 	Master.Package[15] = 0x0A;
-	putDataInBufferUart1(Master.Package,Master.Data_length+2);
+	putDataInBufferUart2(Master.Package,Master.Data_length+2);
 }
 
 void TIM7_Callback()
@@ -849,13 +849,13 @@ void TIM7_Callback()
 	//logDebugD("RE=",ParsingData.IsDataReadyReadFromBuffer,0)
 	if (ParsingData.IsDataReadyReadFromBuffer == 1)
 	{
-		if ( (getCharFromBufferUART1() == PACKAGE_BEGIN) )
+		if ( (getCharFromBufferUART2() == PACKAGE_BEGIN) )
 		{
 			ParsingData.IsDataReadyReadFromBuffer = 0;
 			logDebug("PACKAGE_BEGIN");
 			//logDebugD("l=",bufferUart1.rx_counter,0);
 
-			Slave.Data_length = getCharFromBufferUART1();
+			Slave.Data_length = getCharFromBufferUART2();
 			Slave.Package[0] = PACKAGE_BEGIN;
 			Slave.Package[1] = Slave.Data_length;
 			//logDebugD("Slave.Data_length  ",Slave.Data_length,0);
@@ -864,7 +864,7 @@ void TIM7_Callback()
 				uint8_t i=0;
 				for(i = 2; i<=Slave.Data_length+1;i++)
 				{
-					Slave.Package[i] = getCharFromBufferUART1();
+					Slave.Package[i] = getCharFromBufferUART2();
 					//logDebugD("pack ",Slave.Package[i],0)
 				}
 				Slave.DataCRC = Slave.Package[i-2];

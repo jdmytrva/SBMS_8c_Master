@@ -220,11 +220,38 @@ void DMA1_Channel1_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
+
+  /* USER CODE END USART1_IRQn 0 */
+  /* USER CODE BEGIN USART1_IRQn 1 */
+	if ( (USART1->SR & USART_SR_TXE) != 0 ) //if(LL_USART_IsActiveFlag_TXE(USART2)) //прерывание по передачи
+	{
+		if (bufferUart1.tx_counter > 0) //е�?ли е�?ть что передать
+	    {
+	      --bufferUart1.tx_counter; // уменьшаем количе�?тво не переданных данных
+	      //LL_USART_TransmitData8(USART3,tx_buffer[tx_rd_index++]);
+	      USART1->DR = bufferUart1.tx_buffer[bufferUart1.tx_rd_index++]; //передаем данные инкрементиру�? хво�?т буфера
+	      if (bufferUart1.tx_rd_index == TX_BUFFER_SIZE) bufferUart1.tx_rd_index=0; //идем по кругу
+	    }
+	    else //е�?ли нечего передать, запрещаем прерывание по передачи
+	    {
+	    	USART1->CR1 &= ~USART_CR1_TXEIE;  // Interrupt Disable
+	    	//LL_USART_DisableIT_TXE(USART2);
+	    }
+	}
+  /* USER CODE END USART1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART3 global interrupt.
+  */
+void USART3_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_IRQn 0 */
 	//if ( (USART1->SR & USART_SR_RXNE) !=0 ) //Ждем по�?туплени�? данных от компьютера
 	volatile uint8_t data;
-	if (LL_USART_IsActiveFlag_RXNE(USART1))
+	if (LL_USART_IsActiveFlag_RXNE(USART3))
 	{
-	  data = (uint8_t) (USART1->DR & 0xFF);
+	  data = (uint8_t) (USART3->DR & 0xFF);
 	  //
 	  if ( (ParsingData.IsPassedPackageLengthFlag == 1)  )
 	  {
@@ -235,13 +262,13 @@ void USART1_IRQHandler(void)
 		  if (ParsingData.i < ParsingData.Length-2)
 		  {
 			  ParsingData.i++;
-			  bufferUart1.rx_buffer[bufferUart1.rx_wr_index++] = data; //�?читываем данные в буфер, инкрементиру�? хво�?т буфера
+			  bufferUart2.rx_buffer[bufferUart2.rx_wr_index++] = data; //�?читываем данные в буфер, инкрементиру�? хво�?т буфера
 
-			  if (bufferUart1.rx_wr_index == RX_BUFFER_SIZE) bufferUart1.rx_wr_index=0; //идем по кругу
-			  if (++bufferUart1.rx_counter == RX_BUFFER_SIZE) //переполнение буфера
+			  if (bufferUart2.rx_wr_index == RX_BUFFER_SIZE) bufferUart2.rx_wr_index=0; //идем по кругу
+			  if (++bufferUart2.rx_counter == RX_BUFFER_SIZE) //переполнение буфера
 			  {
-				  bufferUart1.rx_counter=0; //начинаем �?начала (удал�?ем в�?е данные)
-				  bufferUart1.rx_buffer_overflow=1;  //�?ообщаем о переполнении
+				  bufferUart2.rx_counter=0; //начинаем �?начала (удал�?ем в�?е данные)
+				  bufferUart2.rx_buffer_overflow=1;  //�?ообщаем о переполнении
 			  }
 		  }
 		  else
@@ -258,14 +285,14 @@ void USART1_IRQHandler(void)
 	  {
 		  //logDebug("Length");
 		  ParsingData.IsPassedPackageLengthFlag = 1;
-		  bufferUart1.rx_buffer[bufferUart1.rx_wr_index++] = data; //�?читываем данные в буфер, инкрементиру�? хво�?т буфера
+		  bufferUart2.rx_buffer[bufferUart2.rx_wr_index++] = data; //�?читываем данные в буфер, инкрементиру�? хво�?т буфера
 		  ParsingData.Length = data+1+1;
 
-		  if (bufferUart1.rx_wr_index == RX_BUFFER_SIZE) bufferUart1.rx_wr_index=0; //идем по кругу
-		  if (++bufferUart1.rx_counter == RX_BUFFER_SIZE) //переполнение буфера
+		  if (bufferUart2.rx_wr_index == RX_BUFFER_SIZE) bufferUart2.rx_wr_index=0; //идем по кругу
+		  if (++bufferUart2.rx_counter == RX_BUFFER_SIZE) //переполнение буфера
 		  {
-			  bufferUart1.rx_counter=0; //начинаем �?начала (удал�?ем в�?е данные)
-			  bufferUart1.rx_buffer_overflow=1;  //�?ообщаем о переполнении
+			  bufferUart2.rx_counter=0; //начинаем �?начала (удал�?ем в�?е данные)
+			  bufferUart2.rx_buffer_overflow=1;  //�?ообщаем о переполнении
 		  }
 	  }
 	  //
@@ -273,59 +300,32 @@ void USART1_IRQHandler(void)
 	  {
 		  //logDebug("PB");
 		  ParsingData.IsPassedPackageBeginFlag = 1;
-		  bufferUart1.rx_buffer[bufferUart1.rx_wr_index++] = data; //�?читываем данные в буфер, инкрементиру�? хво�?т буфера
+		  bufferUart2.rx_buffer[bufferUart1.rx_wr_index++] = data; //�?читываем данные в буфер, инкрементиру�? хво�?т буфера
 
-		  if (bufferUart1.rx_wr_index == RX_BUFFER_SIZE) bufferUart1.rx_wr_index=0; //идем по кругу
-		  if (++bufferUart1.rx_counter == RX_BUFFER_SIZE) //переполнение буфера
+		  if (bufferUart2.rx_wr_index == RX_BUFFER_SIZE) bufferUart2.rx_wr_index=0; //идем по кругу
+		  if (++bufferUart2.rx_counter == RX_BUFFER_SIZE) //переполнение буфера
 		  {
-			  bufferUart1.rx_counter=0; //начинаем �?начала (удал�?ем в�?е данные)
-			  bufferUart1.rx_buffer_overflow=1;  //�?ообщаем о переполнении
+			  bufferUart2.rx_counter=0; //начинаем �?начала (удал�?ем в�?е данные)
+			  bufferUart2.rx_buffer_overflow=1;  //�?ообщаем о переполнении
 		  }
 	  }
 
 	}
 
-	if ( (USART1->SR & USART_SR_TXE) != 0 ) //if(LL_USART_IsActiveFlag_TXE(USART1)) //прерывание по передачи
+	if ( (USART3->SR & USART_SR_TXE) != 0 ) //if(LL_USART_IsActiveFlag_TXE(USART1)) //прерывание по передачи
 	{
 		vard2++;
-		if (bufferUart1.tx_counter > 0) //е�?ли е�?ть что передать
-	    {
-	      --bufferUart1.tx_counter; // уменьшаем количе�?тво не переданных данных
-	      //LL_USART_TransmitData8(USART1,tx_buffer[tx_rd_index++]);
-	      USART1->DR = bufferUart1.tx_buffer[bufferUart1.tx_rd_index++]; //передаем данные инкрементиру�? хво�?т буфера
-	      if (bufferUart1.tx_rd_index == TX_BUFFER_SIZE) bufferUart1.tx_rd_index=0; //идем по кругу
-	    }
-	    else //е�?ли нечего передать, запрещаем прерывание по передачи
-	    {
-	    	USART1->CR1 &= ~USART_CR1_TXEIE;  // Interrupt Disable
-	    	//LL_USART_DisableIT_TXE(USART1);
-	    }
-	}
-  /* USER CODE END USART1_IRQn 0 */
-  /* USER CODE BEGIN USART1_IRQn 1 */
-
-  /* USER CODE END USART1_IRQn 1 */
-}
-
-/**
-  * @brief This function handles USART3 global interrupt.
-  */
-void USART3_IRQHandler(void)
-{
-  /* USER CODE BEGIN USART3_IRQn 0 */
-	if ( (USART3->SR & USART_SR_TXE) != 0 ) //if(LL_USART_IsActiveFlag_TXE(USART2)) //прерывание по передачи
-	{
 		if (bufferUart2.tx_counter > 0) //е�?ли е�?ть что передать
 	    {
 	      --bufferUart2.tx_counter; // уменьшаем количе�?тво не переданных данных
-	      //LL_USART_TransmitData8(USART3,tx_buffer[tx_rd_index++]);
+	      //LL_USART_TransmitData8(USART1,tx_buffer[tx_rd_index++]);
 	      USART3->DR = bufferUart2.tx_buffer[bufferUart2.tx_rd_index++]; //передаем данные инкрементиру�? хво�?т буфера
 	      if (bufferUart2.tx_rd_index == TX_BUFFER_SIZE) bufferUart2.tx_rd_index=0; //идем по кругу
 	    }
 	    else //е�?ли нечего передать, запрещаем прерывание по передачи
 	    {
 	    	USART3->CR1 &= ~USART_CR1_TXEIE;  // Interrupt Disable
-	    	//LL_USART_DisableIT_TXE(USART2);
+	    	//LL_USART_DisableIT_TXE(USART1);
 	    }
 	}
   /* USER CODE END USART3_IRQn 0 */

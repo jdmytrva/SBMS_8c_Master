@@ -12,11 +12,11 @@
 
 #if ENABLE_LOG_INFO
 	#if ENABLE_PREFIX
-		#define logInfo(x)  {  printToBufferWithoutEndUART2("INFO: ");  printToBufferUART2(x);}
-		#define logInfoD(x,y,z)  {  printToBufferWithoutEndUART2("INFO: ");  printToBufferUART2D(x,y,z);}
+		#define logInfo(x)  {  printToBufferWithoutEndUART1("INFO: ");  printToBufferUART1(x);}
+		#define logInfoD(x,y,z)  {  printToBufferWithoutEndUART1("INFO: ");  printToBufferUART1D(x,y,z);}
 	#else
-		#define logInfo(x)  {printToBufferUART2(x);}
-		#define logInfoD(x,y,z)  {printToBufferUART2D(x,y,z);}
+		#define logInfo(x)  {printToBufferUART1(x);}
+		#define logInfoD(x,y,z)  {printToBufferUART1D(x,y,z);}
 	#endif
 #else
 #define logInfo(x)  // nothing
@@ -26,11 +26,11 @@
 
 #if ENABLE_LOG_ERROR
 	#if ENABLE_PREFIX
-		#define logError(x)  {  printToBufferWithoutEndUART2("ERROR: ");  printToBufferUART2(x);}
-		#define logErrorD(x,y,z)  {  printToBufferWithoutEndUART2("ERROR: ");  printToBufferUART2D(x,y,z);}
+		#define logError(x)  {  printToBufferWithoutEndUART1("ERROR: ");  printToBufferUART1(x);}
+		#define logErrorD(x,y,z)  {  printToBufferWithoutEndUART1("ERROR: ");  printToBufferUART1D(x,y,z);}
 	#else
-		#define logError(x)  {printToBufferUART2(x);}
-		#define logErrorD(x,y,z)  {printToBufferUART2D(x,y,z);}
+		#define logError(x)  {printToBufferUART1(x);}
+		#define logErrorD(x,y,z)  {printToBufferUART1D(x,y,z);}
 	#endif
 #else
 #define logError(x)  // nothing
@@ -39,11 +39,11 @@
 
 #if ENABLE_LOG_DEBUG
 	#if ENABLE_PREFIX
-		#define logDebug(x)  {  printToBufferWithoutEndUART2("DEBUG: ");  printToBufferUART2(x);}
-		#define logDebugD(x,y,z)  {  printToBufferWithoutEndUART2("DEBUG: ");  printToBufferUART2D(x,y,z);}
+		#define logDebug(x)  {  printToBufferWithoutEndUART1("DEBUG: ");  printToBufferUART1(x);}
+		#define logDebugD(x,y,z)  {  printToBufferWithoutEndUART1("DEBUG: ");  printToBufferUART1D(x,y,z);}
 	#else
-		#define logDebug(x)  {printToBufferUART2(x);}
-		#define logDebugD(x,y,z)  {printToBufferUART2D(x,y,z);}
+		#define logDebug(x)  {printToBufferUART1(x);}
+		#define logDebugD(x,y,z)  {printToBufferUART1D(x,y,z);}
 	#endif
 #else
 #define logDebug(x)  // nothing
