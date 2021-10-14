@@ -552,7 +552,7 @@ void adc_func()
 	//LL_DMA_DisableChannel(DMA1,LL_DMA_CHANNEL_1);
 
 
-	U_Controller = 491520 / RegularConvData[11];// Uref V/10;  1200 * 4096/ChVref
+	U_Controller = 491520 / RegularConvData[15];// Uref V/10;  1200 * 4096/ChVref
 
 	It = (RegularConvData[6] * CalibrationData.CalibrationValueForCurrent1) / RegularConvData[15] ;//  Current
 	It_m = It;//middle_of_3Imax1(It);
@@ -948,9 +948,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
-  MX_DMA_Init();
+
   MX_USART3_UART_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
@@ -1050,7 +1051,7 @@ int main(void)
 		//6  [6] I
 		//5  [5] I
 	//	Vref [15]
-
+	  logDebugD("sec ",time_sec,0);
 	  logDebugD("[6] ", RegularConvData[6],0);
 	  logDebugD("I charge ", Battery.Current_Load,2);
 	  logDebugD("[5] ", RegularConvData[5],0);
