@@ -13,4 +13,4 @@ stm32f1xx_it.c:185:6:SysTick_Handler	4	static
 stm32f1xx_it.c:206:6:DMA1_Channel1_IRQHandler	4	static
 stm32f1xx_it.c:220:6:USART1_IRQHandler	4	static
 stm32f1xx_it.c:247:6:USART3_IRQHandler	16	static
-stm32f1xx_it.c:340:6:TIM7_IRQHandler	8	static
+stm32f1xx_it.c:341:6:TIM7_IRQHandler	8	static

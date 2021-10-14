@@ -252,7 +252,7 @@ void USART3_IRQHandler(void)
 	if (LL_USART_IsActiveFlag_RXNE(USART3))
 	{
 	  data = (uint8_t) (USART3->DR & 0xFF);
-	  //
+
 	  if ( (ParsingData.IsPassedPackageLengthFlag == 1)  )
 	  {
 		  //logDebug("PD");
@@ -300,7 +300,8 @@ void USART3_IRQHandler(void)
 	  {
 		  //logDebug("PB");
 		  ParsingData.IsPassedPackageBeginFlag = 1;
-		  bufferUart2.rx_buffer[bufferUart1.rx_wr_index++] = data; //�?читываем данные в буфер, инкрементиру�? хво�?т буфера
+		  bufferUart2.rx_buffer[bufferUart2.rx_wr_index++] = data; //�?читываем данные в буфер, инкрементиру�? хво�?т буфера
+		  //bufferUart2.rx_buffer[bufferUart1.rx_wr_index++] = data; //BUG STUCK
 
 		  if (bufferUart2.rx_wr_index == RX_BUFFER_SIZE) bufferUart2.rx_wr_index=0; //идем по кругу
 		  if (++bufferUart2.rx_counter == RX_BUFFER_SIZE) //переполнение буфера

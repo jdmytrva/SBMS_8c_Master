@@ -852,7 +852,7 @@ void TIM7_Callback()
 		if ( (getCharFromBufferUART2() == PACKAGE_BEGIN) )
 		{
 			ParsingData.IsDataReadyReadFromBuffer = 0;
-			logDebug("PACKAGE_BEGIN");
+			//logDebug("PACKAGE_BEGIN");
 			//logDebugD("l=",bufferUart1.rx_counter,0);
 
 			Slave.Data_length = getCharFromBufferUART2();
@@ -873,13 +873,13 @@ void TIM7_Callback()
 				Slave.DataCRC_Calc = calcCRC(Slave.Package, Slave.Data_length, 0);
 				if (Slave.DataCRC_Calc == Slave.DataCRC)
 				{
-					logDebug("CRC OK");
+					//logDebug("CRC OK");
 					if (Slave.Package[2] == READ_DATA)
 					{
-						logDebug("READ Command");
+						//logDebug("READ Command");
 						if(Slave.Package[3] == MAIN_SCREEN)
 						{
-							logDebug("MAIN_SCREEN");
+							//logDebug("MAIN_SCREEN");
 							MainScreenAnswer();
 						}
 						if(Slave.Package[3] == SYSTEM_INFO)
@@ -967,7 +967,7 @@ int main(void)
    logDebug("System ON");
 	FlashVoltage = Voltage10Percent*ID_MAX_COUNT*10;
 
-  FactoryWriteToFlash_CRC();
+  //FactoryWriteToFlash_CRC();
 	delay_ms(1000);
 
 	flash_read_block();
@@ -1038,41 +1038,41 @@ int main(void)
 		  logDebugD("f1-f2 ",f1-f2,0);
 */
 
-	  //	  PA0   ------> ADC1_IN0 [0] I
-	  //	  PA1   ------> ADC1_IN1 [1] I
-	  //	  PA2   ------> ADC1_IN2 [2] U
-	  //	  PA3   ------> ADC1_IN3 [3] U
-	  //	  PA4   ------> ADC1_IN4 [4] U
-	  //	  PA5   ------> ADC1_IN5 [5] U
-	  //	  PA6   ------> ADC1_IN6 [6] U B1
-	  //	  PA7   ------> ADC1_IN7 [7] U B2
-	  //	  PB0   ------> ADC1_IN8 [8] U B3
-	  //	  PB1   ------> ADC1_IN9 [9] U B4
-	  //	temp [10]
-	  //	Vref [11]
 
-	  logDebugD("[0] ", RegularConvData[0],0);
+		//4  [4] B1
+		//3  [3] B2
+		//1  [1] B3
+		//0  [0] B4
+		//13 [12] B5
+		//12 [11] B6
+		//11 [10] B7
+		//10 [9] B8
+		//6  [6] I
+		//5  [5] I
+	//	Vref [15]
+
+	  logDebugD("[6] ", RegularConvData[6],0);
 	  logDebugD("I charge ", Battery.Current_Load,2);
-	  logDebugD("[1] ", RegularConvData[1],0);
+	  logDebugD("[5] ", RegularConvData[5],0);
 	  logDebugD("I Discharge ", Battery.Current_Charge,2);
-	  logDebugD("[2] ", RegularConvData[2],0);
+	  logDebugD("[4] ", RegularConvData[4],0);
 	  logDebugD("B1 ", CellsDatabase[0].Voltage,2);
 	  logDebugD("[3] ", RegularConvData[3],0);
 	  logDebugD("B2 ", CellsDatabase[1].Voltage,2);
-	  logDebugD("[4] ", RegularConvData[4],0);
+	  logDebugD("[1] ", RegularConvData[1],0);
 	  logDebugD("B3 ", CellsDatabase[2].Voltage,2);
-	  logDebugD("[5] ", RegularConvData[5],0);
+	  logDebugD("[0] ", RegularConvData[0],0);
 	  logDebugD("B4 ", CellsDatabase[3].Voltage,2);
-	  logDebugD("[6] ", RegularConvData[6],0);
+	  logDebugD("[12] ", RegularConvData[12],0);
 	  logDebugD("B5 ", CellsDatabase[4].Voltage,2);
-	  logDebugD("[7] ", RegularConvData[7],0);
+	  logDebugD("[11] ", RegularConvData[11],0);
 	  logDebugD("B6 ", CellsDatabase[5].Voltage,2);
-	  logDebugD("[8] ", RegularConvData[8],0);
+	  logDebugD("[10] ", RegularConvData[10],0);
 	  logDebugD("B7 ", CellsDatabase[6].Voltage,2);
 	  logDebugD("[9] ", RegularConvData[9],0);
 	  logDebugD("B8 ", CellsDatabase[7].Voltage,2);
-	  logDebugD("Tmp ", RegularConvData[10],0);
-	  logDebugD("Ref ", RegularConvData[11],0);
+
+	  logDebugD("Ref ", RegularConvData[15],0);
 	  logDebugD("Ucontroller:", U_Controller,2);
 	  logDebugD("Battery.Voltage:", Battery.Voltage,2);
 
@@ -1081,8 +1081,8 @@ int main(void)
 	 // logDebugD("Rec ", vard1,0);
 	 // logDebugD("snd ", vard2,0);
 	 // logDebugD("int ", vard3,0);
-	  //logDebugD("bufferUart1.rx_counter ", bufferUart1.rx_counter,0);
 
+	  //printToBufferUART2("hello");
 
 	  //printToBufferUART1(getCharFromBufferUART1());
 	 // logDebugD("charge W ",RegularConvData[1],0 );
@@ -1398,7 +1398,7 @@ static void MX_USART1_UART_Init(void)
   LL_USART_Enable(USART1);
   /* USER CODE BEGIN USART1_Init 2 */
   LL_USART_EnableIT_TXE(USART1);
-   LL_USART_EnableIT_RXNE(USART1);
+  // LL_USART_EnableIT_RXNE(USART1);
   /* USER CODE END USART1_Init 2 */
 
 }
@@ -1455,7 +1455,11 @@ static void MX_USART3_UART_Init(void)
   LL_USART_ConfigAsyncMode(USART3);
   LL_USART_Enable(USART3);
   /* USER CODE BEGIN USART3_Init 2 */
+  //LL_USART_EnableIT_TXE(USART3);
+
+
   LL_USART_EnableIT_TXE(USART3);
+    LL_USART_EnableIT_RXNE(USART3);
   /* USER CODE END USART3_Init 2 */
 
 }
