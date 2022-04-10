@@ -95,7 +95,7 @@ static void MX_TIM7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char Version[] = "SBMS 8c M V1.00";
+char Version[] = "SBMS 8c M V1.01";
 
 
 
