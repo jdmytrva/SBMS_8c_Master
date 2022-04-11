@@ -95,7 +95,7 @@ static void MX_TIM7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char Version[] = "SBMS 8c M V1.01";
+char Version[] = "SBMS 8c M V1.02";
 
 
 
@@ -161,7 +161,8 @@ typedef enum Key_Pressed {
     KEY_BACK=1,
     KEY_NEXT,
     KEY_OK,
-    KEY_UP
+    KEY_UP,
+	KEY_ACTION
 }Key_Pressed_t ;
 
 Key_Pressed_t pressedKey = 0;
@@ -360,7 +361,7 @@ void BUT_Debrief(void)
 	Key_Pressed_t key;
 
 	if (!LL_GPIO_IsInputPinSet(GPIOC, LL_GPIO_PIN_10))
-		key = KEY_OK;
+		key = KEY_ACTION;
 	//else if (!LL_GPIO_IsInputPinSet(GPIOB,LL_GPIO_PIN_5))
 	//	key = KEY_NEXT;
 	//else if (!LL_GPIO_IsInputPinSet(GPIOB,LL_GPIO_PIN_6))
@@ -438,7 +439,8 @@ void SysTick_Callback()//1 mc
 
 	if (Count100mSecond >= 100)
 	{
-		if (Module16( Battery.Current) > 0 ) PowerOffTimesec = 0;
+		if (Module16( Battery.Current) > 0  || OverChargeStatus == 1 )
+			PowerOffTimesec = 0;
 		Count100mSecond = 0;
 
 
@@ -451,11 +453,16 @@ void SysTick_Callback()//1 mc
 		PowerOffTimesec++;
 
 
-		if (time_sec < 4) AllBalansirON();
-		else 	Balansir_handler();
+		if (time_sec < 4)
+			AllBalansirON();
+		else
+			Balansir_handler();
 
 
 		MinVoltage_handler();
+
+
+
 		Count1000mSecond = 0;
 		if (Current < 2)
 			BatteryCapacityDischargeCurrent = BatteryCapacityDischargeCurrent + Module16(Current);
@@ -488,6 +495,14 @@ void SysTick_Callback()//1 mc
 			GPIOD->BSRR =  GPIO_BSRR_BR2;
 		}
 
+		if (OverChargeStatus == 1)
+		{
+			GPIOD->BSRR =  GPIO_BSRR_BS2;//Fault
+		}else
+		{
+			GPIOD->BSRR =  GPIO_BSRR_BR2;
+		}
+
 		//if (time_sec%2==0) GPIOB->BSRR =  GPIO_BSRR_BS7;//Charge/ Discharge
 		//else GPIOB->BSRR =  GPIO_BSRR_BR7;
 
@@ -497,7 +512,7 @@ void SysTick_Callback()//1 mc
 
 
 
-		if (time_sec%10==0) Output_ON();
+		//if (time_sec%10==0) Output_ON();
 		//if (time_sec%15==0) Output_OFF();
 
 		if (Battery.Current>2)
@@ -520,16 +535,24 @@ void SysTick_Callback()//1 mc
 
 void adc_func()
 {
-//	  PA0   ------> ADC1_IN0 [0] I charge
-//	  PA1   ------> ADC1_IN1 [1] I load
-//	  PA2   ------> ADC1_IN2 [2] U
-//	  PA3   ------> ADC1_IN3 [3] U
-//	  PA4   ------> ADC1_IN4 [4] U
-//	  PA5   ------> ADC1_IN5 [5] U
-//	  PA6   ------> ADC1_IN6 [6] U B1
-//	  PA7   ------> ADC1_IN7 [7] U B2
-//	  PB0   ------> ADC1_IN8 [8] U B3
-//	  PB1   ------> ADC1_IN9 [9] U B4
+	  /**ADC1 GPIO Configuration
+	  PC0   ------> ADC1_IN10 b8
+	  PC1   ------> ADC1_IN11 b7
+	  PC2   ------> ADC1_IN12 b6
+	  PC3   ------> ADC1_IN13 b5
+	  PA0-WKUP  --> ADC1_IN0 b4
+	  PA1   ------> ADC1_IN1 b3
+	  PA2   ------> ADC1_IN2 Rtb [2]
+	  PA3   ------> ADC1_IN3 b2
+	  PA4   ------> ADC1_IN4 b1
+	  PA5   ------> ADC1_IN5
+	  PA6   ------> ADC1_IN6
+	  PA7   ------> ADC1_IN7 M1
+	  PC4   ------> ADC1_IN14 M2out [13]
+	  PC5   ------> ADC1_IN15 Rtm  [14]
+	  PB1   ------> ADC1_IN9
+	  */
+
 
 	//4  [4] B1
 	//3  [3] B2
@@ -899,13 +922,25 @@ void Output_ON()
 {
     GPIOA->BSRR =  GPIO_BSRR_BS8;//ON OUT
     logDebug("out on");
+    On_off = 1;
 }
 void Output_OFF()
 {
     GPIOA->BSRR =  GPIO_BSRR_BR8;//ON OUT
     logDebug("out off");
+    On_off = 0;
 }
-
+void InverseOUT()
+{
+	if (On_off == 0)
+	{
+		Output_ON();
+	}
+	else
+	{
+		Output_OFF();
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -1005,12 +1040,12 @@ int main(void)
   delay_ms(1000);
 
   //Output_ON();
-  logDebug("OUTPUT ON");
+  //logDebug("OUTPUT ON");
   //printToBufferUART1("Hello");
 
 //	  GPIOC->BSRR =  GPIO_BSRR_BS15;
   Battery.LowBattery = 1;
-
+  Key_Pressed_t Key;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -1020,8 +1055,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  BUT_GetKey();
-
+	  Key = BUT_GetKey();
+	  if (Key == KEY_ACTION)
+		  InverseOUT();
 /*
 	  if (LL_GPIO_IsInputPinSet(GPIOC, LL_GPIO_PIN_14))
 	  {
@@ -1051,11 +1087,16 @@ int main(void)
 		//6  [6] I
 		//5  [5] I
 	//	Vref [15]
+
+
 	  logDebugD("sec ",time_sec,0);
+	  logDebugD("PowerOffTimesec ",PowerOffTimesec,0);
 	  logDebugD("[6] ", RegularConvData[6],0);
 	  logDebugD("I charge ", Battery.Current_Load,2);
 	  logDebugD("[5] ", RegularConvData[5],0);
 	  logDebugD("I Discharge ", Battery.Current_Charge,2);
+
+	  /*
 	  logDebugD("[4] ", RegularConvData[4],0);
 	  logDebugD("B1 ", CellsDatabase[0].Voltage,2);
 	  logDebugD("[3] ", RegularConvData[3],0);
@@ -1077,7 +1118,9 @@ int main(void)
 	  logDebugD("Ucontroller:", U_Controller,2);
 	  logDebugD("Battery.Voltage:", Battery.Voltage,2);
 
-
+*/
+	  logDebugD("T Mosfet: ",RegularConvData[14],0);
+	  logDebugD("T Balans: ",RegularConvData[2],0);
 
 	 // logDebugD("Rec ", vard1,0);
 	 // logDebugD("snd ", vard2,0);
