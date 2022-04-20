@@ -95,7 +95,7 @@ static void MX_TIM7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char Version[] = "SBMS 8c M V1.02";
+char Version[] = "SBMS 8c M V1.03";
 
 
 
@@ -166,6 +166,7 @@ typedef enum Key_Pressed {
 }Key_Pressed_t ;
 
 Key_Pressed_t pressedKey = 0;
+
 
 void OFF_Itself()
 {
@@ -297,7 +298,7 @@ void MinVoltage_handler()
 			{
 				OverDisChargeStatus = 1;
 				Output_OFF();
-				Battery.LowBattery = 0;
+				Battery.BatteryLevel = LOW_BATTERY;
 				logDebugD("OFF. Min voltage ",i+1,0);
 			}
 	}
@@ -306,7 +307,7 @@ void MinVoltage_handler()
 	{
 		Output_ON();
 		OverDisChargeStatus=0;
-		Battery.LowBattery = 1;
+		Battery.BatteryLevel = BATTERY_OK;
 		logDebugD("ON. B V > min V ",i+1,0);
 	}
 }
@@ -423,6 +424,7 @@ void SysTick_Callback()//1 mc
 	BUT_Debrief();
 	TimerForReadyMeasurement_ms++;
 
+	//5mc
 	if (Count5mSecond >= 5)
 	{
 		Count5mSecond = 0;
@@ -430,40 +432,36 @@ void SysTick_Callback()//1 mc
 		adc_func();
 
 	}
+	//10mc
 	if (Count10mSecond >= 10)
 	{
-
-		VoltageLevelByLEDFlash();
 		Count10mSecond = 0;
-	}
+		VoltageLevelByLEDFlash();
 
+	}
+	//100mc
 	if (Count100mSecond >= 100)
 	{
-		if (Module16( Battery.Current) > 0  || OverChargeStatus == 1 )
-			PowerOffTimesec = 0;
 		Count100mSecond = 0;
 
-
-
+		if (Module16( Battery.Current) > 0  || OverChargeStatus == 1 )
+			PowerOffTimesec = 0;
 	}
-
+	//1000mc  1c
 	if (Count1000mSecond >= 1000)
 	{
+		Count1000mSecond = 0;
+
 		OffByTimeOutIfNoAction_handler();
 		PowerOffTimesec++;
-
 
 		if (time_sec < 4)
 			AllBalansirON();
 		else
 			Balansir_handler();
 
-
 		MinVoltage_handler();
 
-
-
-		Count1000mSecond = 0;
 		if (Current < 2)
 			BatteryCapacityDischargeCurrent = BatteryCapacityDischargeCurrent + Module16(Current);
 		if (Current > 2)
@@ -477,13 +475,10 @@ void SysTick_Callback()//1 mc
 			Timer_Sec++;
 		time_sec++;
 
-
-
-
 		//if (time_sec%2==0) GPIOB->BSRR =  GPIO_BSRR_BS4;// Battery level
 		//else GPIOB->BSRR =  GPIO_BSRR_BR4;
 
-		if (Battery.LowBattery == 0)
+		if (Battery.BatteryLevel == LOW_BATTERY)
 		{
 			//if (time_sec%2==0) GPIOB->BSRR =  GPIO_BSRR_BS6;//Fault
 			//else GPIOB->BSRR =  GPIO_BSRR_BR6;
@@ -700,6 +695,11 @@ void adc_func()
 	Battery.Current = 0;
 	if (Battery.Current_Charge > 2) Battery.Current = Battery.Current_Charge;
 	if (Battery.Current_Load > 2) Battery.Current = Battery.Current_Load * (-1);
+
+	Battery.BalansirTemperature = RegularConvData[2];
+	Battery.MosfetsTemperature = RegularConvData[14];
+	Battery.BatteryTemperature = 4096;
+
 	 //LL_DMA_EnableChannel(DMA1,LL_DMA_CHANNEL_1);
 }
 
@@ -793,7 +793,7 @@ void MainScreenAnswer()
 	if (NUMBER_OF_CELLS == 4)
 	{
 		Master.Package[16]=95;
-		Master.Package[17]=On_off;
+		Master.Package[17]=Battery.Power;
 		Master.Data_length = 19-1;
 		Master.DataCRC = calcCRC(Master.Package, Master.Data_length, 0);
 		Master.Package[18] = Master.DataCRC;
@@ -820,7 +820,7 @@ void MainScreenAnswer()
 		Master.Package[23]=arrayPointer_u16[1];
 
 		Master.Package[24]=95;
-		Master.Package[25]=On_off;
+		Master.Package[25]=Battery.Power;
 		Master.Data_length = 27-1;
 
 		Master.DataCRC = calcCRC(Master.Package, Master.Data_length, 0);
@@ -922,17 +922,17 @@ void Output_ON()
 {
     GPIOA->BSRR =  GPIO_BSRR_BS8;//ON OUT
     logDebug("out on");
-    On_off = 1;
+    Battery.Power = ON;
 }
 void Output_OFF()
 {
     GPIOA->BSRR =  GPIO_BSRR_BR8;//ON OUT
     logDebug("out off");
-    On_off = 0;
+    Battery.Power = OFF;
 }
 void InverseOUT()
 {
-	if (On_off == 0)
+	if (Battery.Power == OFF)
 	{
 		Output_ON();
 	}
@@ -1000,10 +1000,12 @@ int main(void)
    GPIOA->BSRR =  GPIO_BSRR_BS11;//ON CPU
    GPIOA->BSRR =  GPIO_BSRR_BS12;//12 V for
    GPIOB->BSRR =  GPIO_BSRR_BS4;//12 V for
+   Battery.BatteryLevel = BATTERY_OK;
+   Battery.Power = OFF;
    logDebug("System ON");
 	FlashVoltage = Voltage10Percent*ID_MAX_COUNT*10;
 
-  //FactoryWriteToFlash_CRC();
+  FactoryWriteToFlash_CRC();
 	delay_ms(1000);
 
 	flash_read_block();
@@ -1044,7 +1046,7 @@ int main(void)
   //printToBufferUART1("Hello");
 
 //	  GPIOC->BSRR =  GPIO_BSRR_BS15;
-  Battery.LowBattery = 1;
+
   Key_Pressed_t Key;
   /* USER CODE END 2 */
 

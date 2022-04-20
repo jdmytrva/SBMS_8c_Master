@@ -56,9 +56,9 @@ struct StructCalibrationValuetoSaveInFlash CalibrationDataFactory=
 {
 		0,//CRC
 		ADDRESS_FLASH_CALIBRATTION,
-		118,//CalibrationValueForCurrent1
+		480,//CalibrationValueForCurrent1
 		ADDRESS_FLASH_CALIBRATTION+4,
-		118,//CalibrationValueForCurrent2
+		480,//CalibrationValueForCurrent2
 		ADDRESS_FLASH_CALIBRATTION+8,
 		256,//CalibrationValueForVoltage1
 		ADDRESS_FLASH_CALIBRATTION+12,

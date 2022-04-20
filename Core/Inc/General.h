@@ -209,13 +209,30 @@ struct StructDataFromBatteryCells
 #define 	ID_MAX_COUNT 8
 struct StructDataFromBatteryCells CellsDatabase[ID_MAX_COUNT];
 
+typedef enum Battery_Level_Enum
+{
+	LOW_BATTERY=1,
+	BATTERY_OK
+}Battery_Level_t;
+
+typedef enum Battery_OutputState_Enum
+{
+	ON=1,
+	OFF
+}Battery_OutputState_t;
+
 struct BatteryStruct
 {
 	volatile uint16_t Voltage;
-	volatile int16_t Current;
+	volatile int16_t  Current;
 	volatile uint16_t Current_Charge;
 	volatile uint16_t Current_Load;
-	volatile uint8_t LowBattery;
+	volatile Battery_Level_t BatteryLevel;
+	volatile uint16_t MosfetsTemperature;
+	volatile uint16_t BalansirTemperature;
+	volatile uint16_t BatteryTemperature;
+	volatile Battery_OutputState_t Power;
+
 
 };
 struct BatteryStruct Battery;
