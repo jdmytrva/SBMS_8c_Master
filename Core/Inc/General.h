@@ -228,10 +228,10 @@ struct BatteryStruct
 	volatile uint16_t Current_Charge;
 	volatile uint16_t Current_Load;
 	volatile Battery_Level_t BatteryLevel;
-	volatile uint16_t MosfetsTemperature;
-	volatile uint16_t BalansirTemperature;
-	volatile uint16_t BatteryTemperature;
-	volatile Battery_OutputState_t Power;
+	volatile uint8_t MosfetsTemperature;
+	volatile uint8_t BalansirTemperature;
+	volatile uint8_t BatteryTemperature;
+	volatile Battery_OutputState_t Out_On_Off;
 	volatile uint16_t Gate1Voltage_NearShunt;
 	volatile uint16_t Gate2Voltage_NearOUT;
 

@@ -95,9 +95,10 @@ static void MX_TIM7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char Version[] = "SBMS 8c M V1.04";
-
-
+char Version[] = "SBMS 8c M V1.05";
+uint8_t Version_BeforePoint = 1;
+uint8_t Version_AfterPoint = 5;
+uint8_t HW_Revision = 1;
 
 volatile uint16_t Voltage95Percent;
 volatile uint16_t Voltage10Percent;
@@ -697,9 +698,9 @@ void adc_func()
 	if (Battery.Current_Charge > 2) Battery.Current = Battery.Current_Charge;
 	if (Battery.Current_Load > 2) Battery.Current = Battery.Current_Load * (-1);
 
-	Battery.BalansirTemperature = RegularConvData[2];
-	Battery.MosfetsTemperature = RegularConvData[14];
-	Battery.BatteryTemperature = RegularConvData[8];
+	Battery.BalansirTemperature = RegularConvData[2]/20;
+	Battery.MosfetsTemperature = RegularConvData[14]/20;
+	Battery.BatteryTemperature = RegularConvData[8]/20;
 
 	Battery.Gate1Voltage_NearShunt = 1400 * RegularConvData[7]/RegularConvData[15];
 	Battery.Gate2Voltage_NearOUT = 1400 * RegularConvData[9]/RegularConvData[15];
@@ -763,13 +764,14 @@ struct AnswerFromSrvToClient_struct
 struct RequestFromClientToSrv_struct RequestFromClientToSrv;
 struct AnswerFromSrvToClient_struct  AnswerFromSrvToClient;
 
+uint16_t var_16=0;
+uint8_t *arrayPointer_16 = (uint8_t*) &var_16;
+
+uint16_t var_u16=0;
+uint8_t *arrayPointer_u16 = (uint8_t*) &var_u16;
 void MainScreenAnswer()
 {
-	uint16_t var_16=0;
-	uint8_t *arrayPointer_16 = (uint8_t*) &var_16;
 
-	uint16_t var_u16=0;
-	uint8_t *arrayPointer_u16 = (uint8_t*) &var_u16;
 	arrayPointer_u16 = (uint8_t*) &Battery.Voltage;
 	Master.Package[4]=arrayPointer_u16[0];
 	Master.Package[5]=arrayPointer_u16[1];
@@ -797,7 +799,7 @@ void MainScreenAnswer()
 	if (NUMBER_OF_CELLS == 4)
 	{
 		Master.Package[16]=95;
-		Master.Package[17]=Battery.Power;
+		Master.Package[17]=Battery.Out_On_Off;
 		Master.Data_length = 19-1;
 		Master.DataCRC = calcCRC(Master.Package, Master.Data_length, 0);
 		Master.Package[18] = Master.DataCRC;
@@ -824,7 +826,7 @@ void MainScreenAnswer()
 		Master.Package[23]=arrayPointer_u16[1];
 
 		Master.Package[24]=95;
-		Master.Package[25]=Battery.Power;
+		Master.Package[25]=Battery.Out_On_Off;
 		Master.Data_length = 27-1;
 
 		Master.DataCRC = calcCRC(Master.Package, Master.Data_length, 0);
@@ -842,13 +844,44 @@ void MainScreenAnswer()
 
 }
 
+void DiagnosticScreenAnswer()
+{
+
+	Master.Package[4]=Battery.BalansirTemperature;
+	Master.Package[5]=Battery.MosfetsTemperature;
+	Master.Package[6]=Battery.BatteryTemperature;
+
+	arrayPointer_u16 = (uint8_t*) &Battery.Gate1Voltage_NearShunt;
+	Master.Package[7]=arrayPointer_u16[0];
+	Master.Package[8]=arrayPointer_u16[1];
+
+	arrayPointer_u16 = (uint8_t*) &Battery.Gate2Voltage_NearOUT;
+	Master.Package[9]=arrayPointer_u16[0];
+	Master.Package[10]=arrayPointer_u16[1];
+
+	Master.Package[11]=0;
+	Master.Package[12]=0;
+	Master.Package[13]=0;
+
+	Master.Data_length = 15-1;
+
+	Master.Package[0] = PACKAGE_BEGIN;
+	Master.Package[1] = Master.Data_length;
+	Master.Package[2] = READ_DATA;
+	Master.Package[3] = DIAGNOSTIC_SCREEN;
+	Master.DataCRC = calcCRC(Master.Package, Master.Data_length, 0);
+	Master.Package[14] = Master.DataCRC;
+	Master.Package[15] = 0x0A;
+	putDataInBufferUart2(Master.Package,Master.Data_length+2);
+}
+
 void SystemInfoAnswer()
 {
-	Master.Package[4]=1;//version before point
-	Master.Package[5]=0;//version after point
+	Master.Package[4]=Version_BeforePoint;
+	Master.Package[5]=Version_AfterPoint;
 	Master.Package[6]=1;// 1- LIFEPO4, 2 - LIon
-	Master.Package[7]=NUMBER_OF_CELLS;//Number of cells
-	Master.Package[8]=0;
+	Master.Package[7]=NUMBER_OF_CELLS;
+	Master.Package[8]=HW_Revision;
 	Master.Package[9]=0;
 	Master.Package[10]=0;
 	Master.Package[11]=0;
@@ -914,6 +947,11 @@ void TIM7_Callback()
 							logDebug("SYSTEM_INFO");
 							SystemInfoAnswer();
 						}
+						if(Slave.Package[3] == DIAGNOSTIC_SCREEN)
+						{
+							logDebug("DiagnosticScreenAnswer");
+							DiagnosticScreenAnswer();
+						}
 
 					}
 				}//CRC
@@ -926,17 +964,17 @@ void Output_ON()
 {
     GPIOA->BSRR =  GPIO_BSRR_BS8;//ON OUT
     logDebug("out on");
-    Battery.Power = ON;
+    Battery.Out_On_Off = ON;
 }
 void Output_OFF()
 {
     GPIOA->BSRR =  GPIO_BSRR_BR8;//ON OUT
     logDebug("out off");
-    Battery.Power = OFF;
+    Battery.Out_On_Off = OFF;
 }
 void InverseOUT()
 {
-	if (Battery.Power == OFF)
+	if (Battery.Out_On_Off == OFF)
 	{
 		Output_ON();
 	}
@@ -1004,7 +1042,7 @@ int main(void)
    GPIOA->BSRR =  GPIO_BSRR_BS12;//12 V for
    GPIOB->BSRR =  GPIO_BSRR_BS4;//12 V for
    Battery.BatteryLevel = BATTERY_OK;
-   Battery.Power = OFF;
+   Battery.Out_On_Off = OFF;
    logDebug("System ON");
 	FlashVoltage = Voltage10Percent*ID_MAX_COUNT*10;
 
