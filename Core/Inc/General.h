@@ -232,6 +232,8 @@ struct BatteryStruct
 	volatile uint16_t BalansirTemperature;
 	volatile uint16_t BatteryTemperature;
 	volatile Battery_OutputState_t Power;
+	volatile uint16_t Gate1Voltage_NearShunt;
+	volatile uint16_t Gate2Voltage_NearOUT;
 
 
 };
