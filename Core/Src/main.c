@@ -95,7 +95,7 @@ static void MX_TIM7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char Version[] = "SBMS 8c M V1.03";
+char Version[] = "SBMS 8c M V1.04";
 
 
 
@@ -543,9 +543,10 @@ void adc_func()
 	  PA5   ------> ADC1_IN5 I
 	  PA6   ------> ADC1_IN6 I
 	  PA7   ------> ADC1_IN7 M1 [7]
-	  PC4   ------> ADC1_IN14 M2out [13]
+	                                            delPC4   ------> ADC1_IN14 M2out
 	  PC5   ------> ADC1_IN15 Rtm  [14]
-	  PB1   ------> ADC1_IN9
+	  PB1   ------> ADC1_IN9 M2out [9]
+	  PB0  -------> ADC1_IN8 Rtbattery [8]
 	  */
 
 
@@ -553,10 +554,10 @@ void adc_func()
 	//3  [3] B2
 	//1  [1] B3
 	//0  [0] B4
-	//13 [12] B5
-	//12 [11] B6
-	//11 [10] B7
-	//10 [9] B8
+	//13 [13] B5
+	//12 [12] B6
+	//11 [11] B7
+	//10 [10] B8
 	//6  [6] I
 	//5  [5] I
 //	Vref [15]
@@ -639,7 +640,7 @@ void adc_func()
 		SumU4 = 0;
 	}
 
-	Ut = (RegularConvData[12] * CalibrationData.CalibrationValueForVoltage5) / RegularConvData[15];
+	Ut = (RegularConvData[13] * CalibrationData.CalibrationValueForVoltage5) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU5 =SumU5 + RunningAverageU5(Ut_m);
 	SumU5Counter ++;
@@ -650,7 +651,7 @@ void adc_func()
 		SumU5 = 0;
 	}
 
-	Ut = (RegularConvData[11] * CalibrationData.CalibrationValueForVoltage6) / RegularConvData[15];//
+	Ut = (RegularConvData[12] * CalibrationData.CalibrationValueForVoltage6) / RegularConvData[15];//
 	Ut_m = Ut;
 	SumU6 =SumU6 + RunningAverageU6(Ut_m);
 	SumU6Counter ++;
@@ -661,7 +662,7 @@ void adc_func()
 		SumU6 = 0;
 	}
 
-	Ut = (RegularConvData[10] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[15];
+	Ut = (RegularConvData[11] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU7 =SumU7 + RunningAverageU7(Ut_m);
 	SumU7Counter ++;
@@ -672,7 +673,7 @@ void adc_func()
 		SumU7 = 0;
 	}
 
-	Ut = (RegularConvData[9] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[15];
+	Ut = (RegularConvData[10] * CalibrationData.CalibrationValueForVoltage7) / RegularConvData[15];
 	Ut_m = Ut;
 	SumU8 =SumU8 + RunningAverageU8(Ut_m);
 	SumU8Counter ++;
@@ -698,10 +699,10 @@ void adc_func()
 
 	Battery.BalansirTemperature = RegularConvData[2];
 	Battery.MosfetsTemperature = RegularConvData[14];
-	Battery.BatteryTemperature = 4096;
+	Battery.BatteryTemperature = RegularConvData[8];
 
 	Battery.Gate1Voltage_NearShunt = 1400 * RegularConvData[7]/RegularConvData[15];
-	Battery.Gate2Voltage_NearOUT = 1400 * RegularConvData[13]/RegularConvData[15];
+	Battery.Gate2Voltage_NearOUT = 1400 * RegularConvData[9]/RegularConvData[15];
 
 	 //LL_DMA_EnableChannel(DMA1,LL_DMA_CHANNEL_1);
 }
@@ -1125,6 +1126,7 @@ int main(void)
 */
 	  logDebugD("T Mosfet: ",Battery.MosfetsTemperature,0);
 	  logDebugD("T Balans: ",Battery.BalansirTemperature,0);
+	  logDebugD("T Battery: ",Battery.BatteryTemperature,0);
 	  logDebugD("Gate1Voltage_NearShunt: ",Battery.Gate1Voltage_NearShunt,2);
 	  logDebugD("Gate2Voltage_NearOUT: ",Battery.Gate2Voltage_NearOUT,2);
 
@@ -1222,12 +1224,12 @@ static void MX_ADC1_Init(void)
   PA5   ------> ADC1_IN5
   PA6   ------> ADC1_IN6
   PA7   ------> ADC1_IN7
-  PC4   ------> ADC1_IN14
   PC5   ------> ADC1_IN15
+  PB0   ------> ADC1_IN8
   PB1   ------> ADC1_IN9
   */
   GPIO_InitStruct.Pin = LL_GPIO_PIN_0|LL_GPIO_PIN_1|LL_GPIO_PIN_2|LL_GPIO_PIN_3
-                          |LL_GPIO_PIN_4|LL_GPIO_PIN_5;
+                          |LL_GPIO_PIN_5;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
   LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
@@ -1236,7 +1238,7 @@ static void MX_ADC1_Init(void)
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_1;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_0|LL_GPIO_PIN_1;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -1326,33 +1328,33 @@ static void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_9, LL_ADC_CHANNEL_9);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_9, LL_ADC_CHANNEL_8);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_8, LL_ADC_SAMPLINGTIME_239CYCLES_5);
+
+  /** Configure Regular Channel
+  */
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_10, LL_ADC_CHANNEL_9);
   LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_9, LL_ADC_SAMPLINGTIME_239CYCLES_5);
 
   /** Configure Regular Channel
   */
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_10, LL_ADC_CHANNEL_10);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_11, LL_ADC_CHANNEL_10);
   LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_10, LL_ADC_SAMPLINGTIME_239CYCLES_5);
 
   /** Configure Regular Channel
   */
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_11, LL_ADC_CHANNEL_11);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_12, LL_ADC_CHANNEL_11);
   LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_11, LL_ADC_SAMPLINGTIME_239CYCLES_5);
 
   /** Configure Regular Channel
   */
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_12, LL_ADC_CHANNEL_12);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_13, LL_ADC_CHANNEL_12);
   LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_12, LL_ADC_SAMPLINGTIME_239CYCLES_5);
 
   /** Configure Regular Channel
   */
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_13, LL_ADC_CHANNEL_13);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_14, LL_ADC_CHANNEL_13);
   LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_13, LL_ADC_SAMPLINGTIME_239CYCLES_5);
-
-  /** Configure Regular Channel
-  */
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_14, LL_ADC_CHANNEL_14);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_14, LL_ADC_SAMPLINGTIME_239CYCLES_5);
 
   /** Configure Regular Channel
   */
